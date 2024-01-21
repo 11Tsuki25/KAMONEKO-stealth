@@ -5,9 +5,11 @@ import math
 class App:
 
     def __init__(self):
+       pyxel.init(256, 128)
+       self.reset()
+       pyxel.run(self.update, self.draw)
 
-        #フィールドの大きさ
-        pyxel.init(256, 128)
+    def reset(self):
 
         pyxel.load('kamo.pyxres')
 
@@ -35,10 +37,14 @@ class App:
         self.ny = 8
 
 
-        pyxel.run(self.update, self.draw)
-
 
     def update(self):
+        #スペースキーでリスタートができるように設定
+        if pyxel.btn(pyxel.KEY_SPACE):
+                self.reset()
+                self.duck.reset()
+                self.specialenemy.reset()
+
         #ゲームオーバーの場合以下の更新をスキップする
         if self.gameoverflag:
             return
@@ -56,7 +62,7 @@ class App:
             #ゲームオーバーの条件
             #敵アイコンの中心とプレイヤーアイコンの中心の間の距離が、15（敵の視野の範囲よりやや狭め）未満の時、敵と味方の間に壁があるか調べ、
             #なかったらゲームオーバーになる（gameoverflagをtrueにする）
-            if math.sqrt(((enemy.centerx)-(self.duck.centerx))*((enemy.centerx)-(self.duck.centerx)) + (enemy.centery-self.duck.centery)*(enemy.centery-self.duck.centery) )< 15:
+            if math.sqrt(((enemy.centerx)-(self.duck.centerx))*((enemy.centerx)-(self.duck.centerx)) + (enemy.centery-self.duck.centery)*(enemy.centery-self.duck.centery) )< 11.5:
                 #プレイヤーの下に壁、敵の上に壁
                 if pyxel.tilemap(0).pget(self.duck.x/8, self.duck.y/8+1) == (0, 1) and self.duck.y > enemy.y:
                     if pyxel.tilemap(0).pget(enemy.x/8, enemy.y/8-1) == (0, 1):
@@ -75,6 +81,7 @@ class App:
                         self.gameoverflag= False
                 #間に壁がないとき
                 else:
+                    pyxel.play(0, 1)
                     self.gameoverflag= True
 
         if self.specialenemy.x <=self.duck.x +4 <= self.specialenemy.x +8  and  self.specialenemy.y <= self.duck.y <= self.specialenemy.y+ 4:
@@ -88,6 +95,7 @@ class App:
             pyxel.tilemap(0).pset(13,1, (6, 2)) 
         if pyxel.tilemap(0).pget(self.duck.x/8, self.duck.y/8) == (6, 2):
             self.clearflag = True
+            pyxel.play(0, 2)
 
         #敵を追加        
         if self.score >= len(self.enemies) *40 :
@@ -98,16 +106,18 @@ class App:
         self.ny = self.duck.y + random.randint(-80, 80)
         if pyxel.tilemap(0).pget(self.duck.x/8, self.duck.y/8) == (2, 2):
             self.score += 10
+            pyxel.play(0, 0)
             if  pyxel.tilemap(0).pget(self.nx/8, self.ny/8) != (0, 1) and pyxel.tilemap(0).pget(self.nx/8, self.ny/8) != (3, 2):
                 pyxel.tilemap(0).pset(self.nx/8, self.ny/8, (2, 2)) 
         pyxel.tilemap(0).pset(self.duck.x/8,self.duck.y/8, (0, 2)) 
 
 
     def draw(self):
-        #ゲームオーバーフラッグがTrueの時、画面の中心に"GAMEOVER!!"を表示
+        #ゲームオーバーフラッグがTrueの時、画面の中心に"GAMEOVER!!""PRESS SPACE KEY TO RESTART!!"を表示
         if self.gameoverflag:
             pyxel.bltm(0, 0, 0, 256, 0, 256, 128, 11)
-            pyxel.text(80, 64, "GAME OVER!!", 0)
+            pyxel.text(50, 64, "GAME OVER!!", 0)
+            pyxel.text(20, 70, "PRESS SPACE KEY TO RESTART!!", 0)
 
         elif self.clearflag:
                 pyxel.text(112, 64, "CLEAR!!", 0)
@@ -138,7 +148,11 @@ class App:
 class Duck:
 
     def __init__(self):
-    #鴨の初期設定
+        self.reset()
+
+    #リスタート時に設定をリセットするためのメソッド
+    def reset(self):
+        #鴨の初期設定
         #スタート地点右下
         #初期x座標
         self.x= 240
@@ -147,8 +161,8 @@ class Duck:
         #鴨が右向きか左向きかを記憶（1の時は左、0の時は右。初めは←向きなので1
         self.dir = 1
         #鴨の進むスピード（x軸、y軸それぞれ）
-        self.vx = 3
-        self.vy = 3
+        self.vx = 2
+        self.vy = 2
         #鴨アイコンの中心座標を記憶→敵の視野内にいる判定、敵と触れている判定に用いる
         self.centerx = self.x + 4
         self.centery = self.y + 4
@@ -158,17 +172,17 @@ class Duck:
         if pyxel.btn(pyxel.KEY_RIGHT):#右矢印キーが押されているとき…
             self.dir = 0 #アイコンが右向きになる
             #ここでは、プレイヤーの進行方向の座標に壁タイルまたは土タイル（画面淵）がないときのみ、プレイヤーが動くように場合分けされている
-            if pyxel.tilemap(0).pget(self.x /8 +0.5, self.y/8) != (0, 1) and pyxel.tilemap(0).pget(self.x /8 +0.5, self.y/8) != (3, 2): 
+            if pyxel.tilemap(0).pget(self.x /8 +0.6, self.y/8) != (0, 1) and pyxel.tilemap(0).pget(self.x/8+0.6 , self.y/8) != (3, 2): 
                 self.x += self.vx #右に決められた速さで進む
         elif pyxel.btn(pyxel.KEY_LEFT): #左矢印キーが押されているとき…
             self.dir = 1 #アイコンが左向きになる
-            if pyxel.tilemap(0).pget(self.x /8- 0.5, self.y/8) != (0, 1) and pyxel.tilemap(0).pget(self.x /8- 0.5, self.y/8) != (3, 2):
+            if pyxel.tilemap(0).pget(self.x/8 - 0.6, self.y/8) != (0, 1) and pyxel.tilemap(0).pget(self.x/8-0.6, self.y/8) != (3, 2):
                 self.x -= self.vx #左に決められた速さで進む
         elif pyxel.btn(pyxel.KEY_UP):#上矢印キーが押されているとき…
-            if pyxel.tilemap(0).pget(self.x /8, self.y/8-0.5) != (0, 1) and pyxel.tilemap(0).pget(self.x /8, self.y/8- 0.5) != (3, 2):
+            if pyxel.tilemap(0).pget(self.x /8, self.y/8-0.6) != (0, 1) and pyxel.tilemap(0).pget(self.x/8, self.y/8-0.6) != (3, 2):
                 self.y -= self.vy #上に決められた速さで進む
         elif pyxel.btn(pyxel.KEY_DOWN): #下矢印キーが押されているとき…
-            if pyxel.tilemap(0).pget(self.x /8, self.y/8+ 0.5) != (0, 1) and pyxel.tilemap(0).pget(self.x /8, self.y/8+ 0.5) != (3, 2):
+            if pyxel.tilemap(0).pget(self.x /8, self.y/8+0.6) != (0, 1) and pyxel.tilemap(0).pget(self.x /8, self.y/8+ 0.6) != (3, 2):
                 self.y += self.vy #下に決められた速さで進む
         #鴨アイコンの中心の座標を更新
         self.centerx= self.x+ 4
@@ -192,6 +206,10 @@ class Duck:
 class Enemy:
     #引数x,yを追加することでApp()内で呼び出す際に、敵ごとの開始位置を設定できる
     def __init__(self, x, y):
+        self.reset(x, y)
+
+    #リスタート時に設定をリセットするためのメソッド
+    def reset(self, x, y):
         #初期x座標
         self.x= x
         #初期y座標
@@ -249,6 +267,10 @@ class Enemy:
 
 class SpecialEnemy:
     def __init__(self):
+        self.reset()
+
+    #リスタート時に設定をリセットするためのメソッド
+    def reset(self):
         #初期x座標
         self.x = 72
         #初期y座標
@@ -287,8 +309,5 @@ class SpecialEnemy:
         elif self.ran == 1: #左向き
             pyxel.blt(self.x, self.y, 0, 32, 16, 8, 8, 11)
              
-
-
-
 
 App()
