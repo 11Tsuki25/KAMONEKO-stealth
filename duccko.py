@@ -119,6 +119,7 @@ class App:
             pyxel.bltm(0, 0, 0, 256, 0, 256, 128, 11)
             pyxel.text(50, 64, "GAME OVER!!", 0)
             pyxel.text(20, 70, "PRESS SPACE KEY TO RESTART!!", 0)
+            pyxel.text(16,116,str('YOUR SCORE:'+str(self.score)), 0)
 
         elif self.clearflag:
                 pyxel.text(112, 64, "CLEAR!!", 0)
