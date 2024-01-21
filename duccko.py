@@ -84,7 +84,7 @@ class App:
                     pyxel.play(0, 1)
                     self.gameoverflag= True
 
-        if self.specialenemy.x <=self.duck.x +4 <= self.specialenemy.x +8  and  self.specialenemy.y <= self.duck.y+4 <= self.specialenemy.y+ 4:
+        if self.specialenemy.x <=self.duck.x +4 <= self.specialenemy.x +8  and  self.specialenemy.y+ 4 <= self.duck.y <= self.specialenemy.y+ 4:
             self.gameoverflag = True
             pyxel.play(0, 1)
 
@@ -100,7 +100,7 @@ class App:
 
         #敵を追加        
         if self.score >= len(self.enemies) *40 :
-            self.enemies.append(Enemy(120, 64))
+            self.enemies.append(Enemy(8, 56))
 
         #アイテムの座標と鴨の座標が一致したら10点加点して、その座標に背景タイルを配置→アイテムを画面上から削除
         self.nx = self.duck.x + random.randint(-80, 80)
@@ -143,6 +143,7 @@ class App:
                 self.specialenemy.draw()
             #スコア表示
             pyxel.text(16,116,str(self.score), 0)
+            
         
         
 
