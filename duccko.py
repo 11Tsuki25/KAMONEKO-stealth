@@ -84,7 +84,7 @@ class App:
                     pyxel.play(0, 1)
                     self.gameoverflag= True
 
-        if self.specialenemy.x <=self.duck.x +4 <= self.specialenemy.x +8  and  self.specialenemy.y <= self.duck.y <= self.specialenemy.y+ 4:
+        if self.specialenemy.x <=self.duck.x +4 <= self.specialenemy.x +8  and  self.specialenemy.y <= self.duck.y+4 <= self.specialenemy.y+ 4:
             self.gameoverflag = True
             pyxel.play(0, 1)
 
